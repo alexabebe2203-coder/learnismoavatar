@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#02030a">
+  <title>LEARNISMO AVATAR — Aprendizaje Personalizado IA</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <canvas id="particleCanvas" aria-hidden="true"></canvas>
+    <div class="aurora-layer" aria-hidden="true"></div>
+    <div class="grid-layer" aria-hidden="true"></div>
+
+    <header class="hero" id="inicio">
+      <nav class="topbar" aria-label="Navegacion principal">
+        <a class="brand-mark" href="#inicio" aria-label="LEARNISMO AVATAR inicio">
+          <span class="brand-orb">LA</span>
+          <span>
+            <strong>LEARNISMO</strong>
+            <small>Avatar IA</small>
+          </span>
+        </a>
+        <div class="nav-actions">
+          <button class="icon-btn" id="soundToggle" type="button" aria-label="Activar sonido futurista" title="Sonido">
+            <span class="icon-sound"></span>
+          </button>
+          <a class="ghost-link" href="#planner">Plan IA</a>
+        </div>
+      </nav>
+
+      <section class="hero-stage">
+        <div class="hero-copy">
+          <p class="eyebrow">Super agente educativo gamificado</p>
+          <h1>LEARNISMO AVATAR</h1>
+          <p class="subtitle">Aprendizaje Personalizado IA</p>
+          <p class="hero-note">Crea un avatar vivo, detecta preferencias y genera una planeacion premium de 8 temas seguros, motivadores y adaptados a cada estudiante.</p>
+          <div class="hero-metrics" aria-label="Beneficios principales">
+            <span><b>8</b> temas premium</span>
+            <span><b>10</b> preferencias IA</span>
+            <span><b>AI</b> imagen premium</span>
+          </div>
+        </div>
+
+        <div class="avatar-command" aria-label="Avatar holografico principal">
+          <div class="holo-ring ring-one"></div>
+          <div class="holo-ring ring-two"></div>
+          <div class="avatar-canvas-frame">
+            <img id="avatarImage" alt="Avatar premium generado por IA" decoding="async">
+            <canvas id="avatarArtCanvas" width="1024" height="1280" aria-hidden="true"></canvas>
+            <div class="avatar-image-placeholder" id="avatarImagePlaceholder">
+              <span>AI</span>
+              <strong>Imagen premium lista para generarse</strong>
+              <p>Completa el perfil y selecciona preferencias.</p>
+            </div>
+          </div>
+          <div class="avatar-status">
+            <span id="avatarMood">Modo explorador</span>
+            <strong id="avatarPower">Nivel neural 01</strong>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="workspace" id="planner">
+        <div class="panel form-panel">
+          <div class="section-head">
+            <p class="eyebrow">Configuracion principal</p>
+            <h2>Perfil del avatar</h2>
+          </div>
+
+          <form id="profileForm" novalidate>
+            <div class="field-grid">
+              <label class="field">
+                <span>Como se identifica el avatar</span>
+                <select id="identity" required>
+                  <option value="">Seleccionar identidad</option>
+                  <option value="hombre">Hombre</option>
+                  <option value="mujer">Mujer</option>
+                  <option value="otro">Otro</option>
+                  <option value="prefiero no decir">Prefiero no decir</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Nombre del avatar</span>
+                <input id="avatarName" type="text" maxlength="28" placeholder="Ej. Nova Mentor" autocomplete="nickname" required>
+              </label>
+
+              <label class="field">
+                <span>Edad</span>
+                <select id="age" required>
+                  <option value="">Seleccionar edad</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Escolaridad</span>
+                <select id="grade" required>
+                  <option value="">Seleccionar nivel</option>
+                </select>
+              </label>
+
+              <label class="field nationality-field">
+                <span>Nacionalidad</span>
+                <select id="nationality" required>
+                  <option value="">Seleccionar pais</option>
+                </select>
+                <strong id="flagPreview" class="flag-preview" aria-live="polite">🌐</strong>
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <aside class="panel avatar-panel">
+          <div class="section-head compact">
+            <p class="eyebrow">Avatar en tiempo real</p>
+            <h2 id="sideAvatarName">Sincronizando...</h2>
+          </div>
+          <div class="avatar-loadout">
+            <div><span>Traje</span><strong id="loadoutSuit">Neon Explorer</strong></div>
+            <div><span>Gadget</span><strong id="loadoutGadget">Tutor IA</strong></div>
+            <div><span>Aura</span><strong id="loadoutAura">Cyan core</strong></div>
+          </div>
+          <div class="mini-terminal" id="miniTerminal" aria-live="polite">
+            <p>> Esperando datos del perfil...</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="preferences-zone">
+        <div class="section-head">
+          <p class="eyebrow">Preferencias inteligentes</p>
+          <h2>10 rutas sugeridas por IA educativa</h2>
+        </div>
+        <div id="selectedPreferenceBar" class="selected-preference-bar" aria-live="polite">
+          <strong>0 seleccionadas</strong>
+          <span>Elige las rutas que activaran el avatar y el plan IA.</span>
+        </div>
+        <div id="preferenceGrid" class="preference-grid" aria-live="polite"></div>
+        <div class="manual-preference">
+          <label class="field">
+            <span>Agregar otra preferencia</span>
+            <input id="manualPreference" type="text" maxlength="42" placeholder="Ej. astronomia, robotica, historia del arte">
+          </label>
+          <button id="addPreferenceBtn" class="secondary-btn" type="button">Agregar</button>
+        </div>
+      </section>
+
+      <section class="action-zone">
+        <div id="messageBox" class="message-box" role="status" aria-live="polite"></div>
+        <button id="createAvatarBtn" class="mega-btn" type="button">
+          <span>CREAR AVATAR</span>
+          <i></i>
+        </button>
+      </section>
+
+      <section class="results-zone" id="resultsZone" hidden>
+        <div class="results-header">
+          <div>
+            <p class="eyebrow">Planeacion premium</p>
+            <h2>Plan de estudio personalizado</h2>
+          </div>
+          <button id="downloadPdfBtn" class="secondary-btn pdf-btn" type="button">DESCARGAR PDF</button>
+        </div>
+        <div id="studyPlanGrid" class="study-plan-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="progress-overlay" id="progressOverlay" hidden>
+    <div class="progress-core">
+      <div class="scanner-avatar" aria-hidden="true">
+        <div class="scan-head"></div>
+        <div class="scan-body"></div>
+        <div class="scan-line"></div>
+      </div>
+      <p class="eyebrow">Motor neural Learnismo</p>
+      <h2 id="progressTitle">Analizando perfil...</h2>
+      <div class="progress-bar" aria-label="Progreso de creacion">
+        <span id="progressFill"></span>
+      </div>
+      <strong id="progressPercent">0%</strong>
+      <div class="progress-terminal" id="progressTerminal"></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+Vamos a crear un SISTEMA/APP (que se adapte para desktop, celular y tablet)
+LEARNISMO - AVATAR: Aprendizaje Personalizado IA
+
+<<Objetivo principal del sistema>>
+
+-El sistema es UN SUPER AGENTE IA QUE ES CAPAZ DE PROPONER PLANES DE ESTUDIO BASADO EN EDAD, ESCOLARIDAD, NACIONALIDAD, PREFERENCIAS Y AVANCES ACADEMICOS Y TECNOLOGICOS
+ RELEVANTES ESE DIA!!!!!
+-ESTE SUPER SISTEMA SERA LA GUIA PARA PROFESORES Y PADRES DE FAMILIA, HACIENDO DE SU CONOCIMIENTO UNA PLANEACION DETALLADA QUE EL ALUMNO DEBE APRENDER. ASI PADRES
+ Y MAESTROS SIEMPRE SABRAN COMO ORIENTAR A SUS  HIJOS Y ALUMNOS.
+
+-El sistema sera capaz de proponer una PLANEACION DE ESTUDIO (LISTA) DE 8 TEMAS DE APRENDIZAJE desglozados perfectamente, de forma concreta, sencilla pero
+ super profesional como si fuera un PROFESOR PRIVADO CON UNA GRAN TRAYECTORIA PEDAGOJICA Y ALTAMENTE CAPACITADO
+ para orientar a los alumnos dependiendo de su EDAD, ESCOLARIDAD, NACIONALIDAD Y PREFERENCIAS/GUSTOS.
+-Este punto es clave para que el usuario siempre cuente con una lista diferente y actualizada dependiendo del contexto, fecha y datos
+proporcionados por el usuario.
+-La planeacion debe ser 100% REAL Y ALCANZABLE PARA EL USUARIO.
+-La planeacion debe estar 100% estructurada EJEMPLO:
+<<
+"Temario para nino de 11 de edad, mexicano, en quinto grado de primaria, preferencias: Matematicas, Ciencias, tecnologia.
+ Campo matematicas: Fracciones, numeros decimales hasta centena de millar, Plano cartesiano, forumulas y ejemplos de la vida diaria.
+ Campo ciencia: Biologia, organismos, la celular, el atomo. Organos y sistemas.">>
+
+-Con ese nivel de detalle o mas debe estar CADA UNO DE LOS 8 TEMAS y subtemas que va a ser capaz de crear al sistema.
+
+------------------------------------------------------------------------------------------------------------------------------------
+<<Para lograr que esa planeacion de temas quiera ser estudiada por el usuario, debe tener un entorno GAMIFICADO, que lo emocione para eso debemos crear un sistema
+super dinamico y 100% configurable:
+
+<<Caracteristicas UI/UX
+
+<INFORMACION PRINCIPAL>
+
+-Nombre del AVATAR (campo de texto super dinamico RGB)
+-Como se indentifica el AVATAR en forma de lista: Hombre, mujer, otro, prefiero no decir
+-El usuario introduce su edad (Tiene un dropdown SUPER GAMER LED menu para que sea facil de seleccionar)
+-Nivel de escolaridad (primaria con sus 6 niveles, secundaria con sus 3 niveles, preparatoria con sus 3 niveles 
+ y Universidad con 5 niveles). Cada nivel debe verse diferente en cuanto a color y EMOJIS 3D super GAMER LED.
+-Nacionalidad (aparece emoji de bandera dependiendo del pais)
+
+<PREFERENCIAS>
+
+-CREAR PREFERENCIAS: Crear una lista detallada en la que el usuario puede seleccionar las que guste. La lista debe ser
+ 100% basada en la EDAD del usuario, nacionalidad y su escolaridad (TEMAS ESCOLARES BASADOS EN PROGRAMAS NACIONALES DE ACUERDO
+ A LA NACIONALIDAD DEL USUARIO). Esta parte es critica ya que debe ser super VISTOSA y debe contener 10 ideas de aprendizaje y 
+ para usuarios con esas caracteristicas, deben ser 100% basadas en edad y escolaridad (Matematicas, razonamiento, tecnologia, etc.) PERO SIEMPRE PODIENDO 
+ SORPRENDER CON 3 (RESALTAR DE LAS OTRAS 7) QUE ESTEN MUY DE ACUERDO A LA TECNOLOGIA, IA Y CONOCIMIENTOS RELEVALENTES DE ESA SEMANA DE ACUERDO A LOS AVANCES TECNOLOGICOS.
+-----QUE SIEMPRE ESTAS 10 SUGERENCIAS SEAN 100% EN PRO DEL APRENDIZAJE Y DESARROLLO PERSONAL DEL USUARIO-----
+-Ademas tener un capo de texto para que el usuario pueda agregar alguna PREFERENCIA en caso de no encontrarla en esa lista de 10.
+
+<<PARTE CRITICA VISUAL: CREACION DE AVATAR EN TIEMPO REAL>>
+
+-Al abrir el sistema en la parte superior debe tener un AVATAR 3D configurable TIPO VIDEO JUEGO DE SUPER ALTO
+ PRESUPUESTO.
+-Es vital que el AVATAR se configure AUTOMATICAMENTE 100% de acuerdo a la informacion proporcionada por el usuario:
+ +Como se indentifica el AVATAR en forma de lista: Hombre, mujer, otro, prefiero no decir
+ +Edad
+ +Escolaridad
+ +Nacionalidad
+ +Preferencias/gustos (de acuerdo a las opciones que el usuario haya seleccionado de la seccion "CREAR PREFERENCIAS" o la que HAYA INTRODUCIDO MANUALMENTE)
+-El avatar debe ser una representacion 3D TIPO AVATAR DE ALTO PRESUPUESTO (ROBLOX, AVATAR WORLD, FIFA), para que el usuario se sienta 100% IDENTIFICADO Y SE ANIME A estudiar 
+los temas que el sistema va a generar (OBJETIVO PRINCIPAL DEL SISTEMA).
+
+<<PLANEACION DE ESTUDIO (objetivo principal)>>
+-LOS 8 TEMAS CREADO deben tener IMAGENES GENERADAS CON SUPER NANO BANANA por tema, la imagen debe reflejar 100% EL TEMA, imagenes impactantes que llamen la atencion
+ del usuario y que lo inviten a estudiarlos.
+-ESTA AREA DE PLANEACION DEBE SER SUPER LLAMATIVA RBB LED y que se distinga del resto.
+
+-Al crear la planeacion de estudio (8 TEMAS PRINCIPALES con sus subtemas correspondientes perfectamente estructurados)
+-Cada tema tendra un boton de COPIAR, para que el usuario pueda copiar dicho tema con sus subtemas (para que el pueda pegarlos facilmente en el SISTEMA LEARNIMO WORLD que
+ ya tenemos funcionando)
+
+--------------------------------------------
+<BOTONES PRINCIAPALES>
+-El sistema tendra un boton "CREAR AVATAR" despues de que el usuario seleccione toda la informacion requerida.
+-Este boton inicia EL SUPER PROGRESS BAR, creando el AVATAR ASI COMO EL PROGRAMA DE ESTUDIOS (Objetivo principal)
+-El sistema tendra un boton en el cual se podra descargar en PDF el temario QUE SE A CREADO, El pdf debe tener toda la informacion importante del NOMBRE DE AVATAR,fecha,
+LEARNISM0 AVATAR: Aprendizaje personalizado IA, Preferencias que el usuario seleccino, temas a estudiar Y CON UN ESTILO SUPER PROFESIONAL TECNOLOGICO GAMER.
+-PDF DE ALTA CALIDAD.
+-Cada vez que el usuario presione "CREAR AVATAR SE GENERA TODO NUEVAMENTE"
+--------------------------------------------
+<<Caracteristicas visuales>>
+-El sistema debe ser super GAMER PRO LED RBG DE ALTO PRESUPUESTO en color negro, neones cyan, rosa y verde lima.
+-Imagenes de fondo HOLOGRAFICAS TIPO VIDEO JUEGO.
+-Emojis 3D realistas
+-Geometrias/Videos 3D para el avatar principal del usuario (AVATAR CON CALIADAD: ROBLOX, AVATAR WORLD, FIFA)
+-El sistema debe tener un SUPER PROGRESS BAR (en medio de la pantalla) dinamico con imagenes AVATAR SUPER COMPLEJAS que simulen COMO SE ESTA CREANDO
+ EL AVATAR HASTA TENERLO LISTO.
+
+--------------------------------
+<CALIDAD>
+-Jamas se inicia el sistema si falta informacion importante, le damos un mensaje al usuario de que falta
+-Siempre nos aseguramos de que los temas son 100% APEGADOS AL APRENDIZAJE Y DE TEMAS PERMITIDOS PARA MENORES DE EDAD
+-De ser algun tema sensible no SE PROCEDE A CREAR TEMARIO, se envia un mensaje al usuario diciendo el inconveniente
+-EL AVATAR SIEMPRE SE CREA DE GRAN CALIDAD APEGADO a lo antes mencionado
+
+<<BASE DE DATOS>>
+-La informacion que el usuario introduce (NOMBRE DEL AVATAR, NACIONALIDAD Y ESCOLARIDAD), DEBE quedarse almacenada en memoria (guardala donde gustes del navegador
+pero que el usuario al entrar no deba introducirla nuevamente)
+-----------------------------------------------
+<<PUBLICACION>>
+-El sistema debe ser creado en HTML con todos los aditamentos que se necesiten para que sea GENIAL
+-Despues lo voy a pasar a github y vercel para publicacion final
+
+ 
