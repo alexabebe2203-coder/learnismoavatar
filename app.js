@@ -566,37 +566,195 @@ function generateStudyPlan() {
     band === "secundaria" ? "Intermedia con retos" :
     band === "preparatoria" ? "Media-avanzada aplicada" : "Avanzada profesional";
 
-  const focus = getCurriculumBlueprint(band, grade, countryName, prefs);
+  const focus = createPreferenceDrivenBlueprint(prefs, band, grade, age, countryName);
   return focus.slice(0, 8).map((item, index) => {
-    const pref = prefs[index % Math.max(prefs.length, 1)] || item.area;
+    const pref = item.preference || prefs[index % Math.max(prefs.length, 1)] || item.area;
     const practice = item.practice || [
       `Aplicar el tema en un reto breve relacionado con ${pref}`,
       "Crear una evidencia visual o escrita del aprendizaje",
       "Usar IA solo para recibir pistas, verificar pasos y mejorar la explicacion"
     ];
-    const profileProof = [
-      `Avatar: ${state.profile.name}`,
-      `Edad: ${age} años`,
-      `Nivel: ${levelName}`,
-      `Pais: ${countryName}`,
-      `Preferencia usada: ${pref}`,
-      `Base curricular: ${item.source}`
-    ];
     return {
       title: item.title.replace("{pref}", pref),
-      description: `${item.description} Esta ruta fue recalculada para ${state.profile.name}: ${age} años, ${levelName}, nacionalidad ${countryName}, con ${context} y preferencia activa "${pref}".`,
+      description: item.description,
       difficulty,
       benefit: item.benefit,
       objectives: item.objectives,
-      profileProof,
       selectedPreference: pref,
-      subtopics: item.subtopics.map((subtopic) => adaptSubtopic(subtopic, band, pref, countryName, levelName, age)),
-      practice: practice.map((activity) => adaptSubtopic(activity, band, pref, countryName, levelName, age)),
+      subtopics: item.subtopics.map((subtopic) => simplifyPlanLine(subtopic)),
+      practice: practice.map((activity) => simplifyPlanLine(activity)),
       assessment: item.assessment || "Evidencia: producto breve, explicacion del proceso y mini rubrica de comprension.",
       visual: topicVisuals[index],
       colors: topicColors[index]
     };
   });
+}
+
+function createPreferenceDrivenBlueprint(prefs, band, grade, age, countryName) {
+  const cleanPrefs = prefs.length ? prefs : ["Aprendizaje personalizado"];
+  const moduleGroups = cleanPrefs.map((pref) => buildPreferenceModules(pref, band, grade, age, countryName));
+  const maxGroupLength = Math.max(...moduleGroups.map((group) => group.length));
+  const perPreference = [];
+  for (let i = 0; i < maxGroupLength; i += 1) {
+    moduleGroups.forEach((group) => {
+      if (group[i]) perPreference.push(group[i]);
+    });
+  }
+  const selected = [];
+  const seen = new Set();
+  let cursor = 0;
+  while (selected.length < 8 && cursor < perPreference.length * 3) {
+    const item = perPreference[cursor % perPreference.length];
+    const key = normalize(item.title);
+    if (!seen.has(key)) {
+      seen.add(key);
+      selected.push(item);
+    }
+    cursor += 1;
+  }
+
+  while (selected.length < 8) {
+    const pref = cleanPrefs[selected.length % cleanPrefs.length];
+    selected.push(buildCapstoneModule(pref, band, grade, age, countryName, selected.length + 1));
+  }
+  return selected.slice(0, 8);
+}
+
+function buildPreferenceModules(pref, band, grade, age, countryName) {
+  const intent = detectPreferenceIntent(pref);
+  const level = levelDescriptor(band, grade, age);
+  if (intent === "finance") return financeModules(pref, level, countryName);
+  if (intent === "ai") return aiModules(pref, level, countryName);
+  if (intent === "robotics") return roboticsModules(pref, level, countryName);
+  if (intent === "technology") return technologyModules(pref, level, countryName);
+  if (intent === "creativity") return creativityModules(pref, level, countryName);
+  if (intent === "science") return scienceInterestModules(pref, level, countryName);
+  if (intent === "math") return mathInterestModules(pref, level, countryName);
+  if (intent === "wellbeing") return wellbeingModules(pref, level, countryName);
+  return customInterestModules(pref, level, countryName);
+}
+
+function detectPreferenceIntent(pref) {
+  const text = normalize(pref);
+  if (/(finanza|dinero|ahorro|presupuesto|inversion|negocio|emprend|econom)/.test(text)) return "finance";
+  if (/(ia|inteligencia artificial|prompt|chatbot|agente)/.test(text)) return "ai";
+  if (/(robot|sensor|arduino|mecanica|drone)/.test(text)) return "robotics";
+  if (/(tecnolog|program|app|web|videojuego|comput|codigo|software)/.test(text)) return "technology";
+  if (/(arte|creativ|dibujo|musica|cuento|animacion|diseno|diseño|multimedia)/.test(text)) return "creativity";
+  if (/(ciencia|biologia|fisica|quimica|astronomia|naturaleza|ecosistema)/.test(text)) return "science";
+  if (/(matemat|logica|razonamiento|ajedrez|numer)/.test(text)) return "math";
+  if (/(bienestar|habito|liderazgo|emocion|salud|deporte|metas)/.test(text)) return "wellbeing";
+  return "custom";
+}
+
+function levelDescriptor(band, grade, age) {
+  const gradeText = grade?.[1] || "nivel seleccionado";
+  const simple = band === "primaria";
+  const intermediate = band === "secundaria";
+  return {
+    band,
+    gradeText,
+    age,
+    depth: simple ? "visual, concreto y con retos cortos" : intermediate ? "practico, comparativo y con explicaciones guiadas" : band === "preparatoria" ? "aplicado, analitico y con proyectos" : "profesional, investigativo y con entregables",
+    math: simple ? "operaciones, fracciones/decimales, medidas, tablas y graficas del grado" : intermediate ? "proporciones, algebra, funciones iniciales, datos y modelos" : band === "preparatoria" ? "funciones, estadistica, modelos y decisiones cuantitativas" : "analitica, indicadores, datos y criterios de decision",
+    writing: simple ? "explicaciones breves, bitacoras, vocabulario y presentaciones visuales" : intermediate ? "argumentos, fuentes, reportes y exposiciones" : band === "preparatoria" ? "ensayo, reporte tecnico y presentacion" : "documentacion profesional, investigacion y pitch"
+  };
+}
+
+function financeModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Finanzas personales", source, `Dinero inteligente para ${level.gradeText}`, `Aprender que es el dinero, ingresos, gastos, necesidades, deseos y decisiones de compra con enfoque ${level.depth}.`, "Construye criterio financiero temprano sin temas de riesgo.", ["Distinguir ingreso, gasto, necesidad y deseo", "Registrar decisiones de compra", "Explicar consecuencias"], ["Concepto de dinero y valor", "Necesidades vs deseos", "Ingresos familiares o simulados", "Gastos fijos y variables", `Ejemplos seguros de ${countryName}`], ["Crear lista de compras priorizada", "Simular una semana de gastos", "Explicar una decision buena y una mala"], "Evidencia: tabla de ingresos/gastos simulados y reflexion de decisiones."),
+    makePreferenceTopic(pref, "Presupuesto", source, "Presupuesto gamer: planear antes de gastar", "Convierte la preferencia de finanzas en un reto de planeacion con metas, limites y seguimiento.", "Mejora organizacion, autocontrol y pensamiento matematico aplicado.", ["Crear presupuesto simple", "Calcular saldos", "Ajustar gastos"], ["Presupuesto semanal o mensual", level.math, "Suma, resta y comparacion de cantidades", "Categorias de gasto", "Saldo final y toma de decisiones"], ["Disenar presupuesto para avatar/proyecto", "Comparar dos escenarios", "Usar grafica de barras para gastos"], "Evidencia: presupuesto completo, grafica y explicacion."),
+    makePreferenceTopic(pref, "Ahorro", source, "Ahorro, metas y recompensas alcanzables", "Trabaja ahorro como proyecto motivador adaptado a edad y escolaridad.", "Desarrolla paciencia, planeacion y metas realistas.", ["Definir meta", "Calcular ahorro periodico", "Medir avance"], ["Meta SMART", "Cantidad objetivo", "Ahorro por semana", "Tiempo necesario", "Obstaculos y ajustes"], ["Plan de ahorro para una meta segura", "Barra de progreso", "Reflexion de sacrificios y beneficios"], "Evidencia: plan de ahorro visual con calculos."),
+    makePreferenceTopic(pref, "Compras", source, "Compras inteligentes: precios, descuentos y comparacion", "Usa precios, unidades, descuentos y calidad para decidir mejor.", "Conecta matematicas escolares con vida diaria.", ["Comparar precios", "Calcular cambios o descuentos", "Justificar una compra"], ["Precio unitario", "Cambio y estimacion", "Descuentos seguros segun nivel", "Calidad vs precio", "Publicidad y consumo responsable"], ["Comparar tres productos", "Detectar una oferta engañosa simple", "Crear regla de compra inteligente"], "Evidencia: comparativa de productos y decision argumentada."),
+    makePreferenceTopic(pref, "Datos financieros", source, "Graficas de gastos y decisiones con datos", "Convierte registros de gastos en tablas, graficas y conclusiones.", "Mejora lectura de datos y razonamiento.", ["Registrar datos", "Crear graficas", "Interpretar patrones"], ["Tabla de frecuencia", "Grafica de barras o pastel segun nivel", "Promedio o total", "Categorias de gasto", "Conclusiones"], ["Graficar gastos simulados", "Encontrar categoria mayor", "Proponer mejora"], "Evidencia: tabla, grafica y conclusion."),
+    makePreferenceTopic(pref, "Emprendimiento seguro", source, "Mini negocio educativo sin riesgo", "Diseña un proyecto ficticio para entender costo, precio, ganancia y valor para otros.", "Introduce emprendimiento de forma segura y escolar.", ["Definir producto o servicio", "Calcular costos", "Presentar propuesta"], ["Costo de materiales", "Precio justo", "Ganancia simulada", "Cliente y necesidad", "Etica y seguridad"], ["Crear mini tienda escolar ficticia", "Calcular 5 ventas simuladas", "Pitch de 60 segundos"], "Evidencia: ficha de negocio, calculos y pitch."),
+    makePreferenceTopic(pref, "Seguridad financiera", source, "Seguridad digital y dinero en internet", "Aprende cuidado de datos, compras online, publicidad, estafas y autorizacion adulta.", "Protege a menores y forma criterio digital.", ["Reconocer riesgos", "Proteger datos", "Pedir ayuda adulta"], ["Datos personales", "Compras en apps y videojuegos", "Publicidad e influenciadores", "Señales de estafa", "Reglas familiares de seguridad"], ["Checklist de compra segura", "Analizar anuncio ficticio", "Crear regla de proteccion"], "Evidencia: checklist y caso resuelto."),
+    makePreferenceTopic(pref, "Proyecto final", source, "Mision final: plan financiero del avatar", "Integra presupuesto, ahorro, compras y datos en un proyecto final personalizado.", "Convierte la preferencia en aprendizaje visible.", ["Integrar aprendizajes", "Presentar plan", "Reflexionar mejora"], ["Meta del avatar", "Presupuesto", "Ahorro", "Comparacion de compras", "Grafica de avance"], ["Crear plan financiero del avatar", "Presentar en una pagina", "Autoevaluar decisiones"], "Evidencia: portafolio financiero completo.")
+  ];
+}
+
+function aiModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "IA", source, "Prompts utiles para estudiar mejor", `Aprender a pedir ayuda a la IA con instrucciones claras y nivel ${level.depth}.`, "Mejora autonomia sin reemplazar el pensamiento propio.", ["Escribir prompts", "Pedir explicaciones", "Mejorar respuestas"], ["Rol, objetivo y contexto", "Preguntas paso a paso", "Ejemplos y contraejemplos", "Limites de la IA", "Privacidad"], ["Crear 5 prompts de estudio", "Comparar respuesta mala vs buena", "Mejorar un prompt"], "Evidencia: banco de prompts comentado."),
+    makePreferenceTopic(pref, "IA segura", source, "Verificacion, errores y fuentes confiables", "Usa IA con pensamiento critico: revisar, contrastar y corregir.", "Evita dependencia y errores.", ["Detectar errores", "Contrastar fuentes", "Explicar con palabras propias"], ["Alucinaciones", "Fuentes confiables", "Sesgos", "Citas simples", "Revision humana"], ["Pedir a IA una respuesta y verificarla", "Marcar dudas", "Crear checklist de verificacion"], "Evidencia: respuesta auditada."),
+    makePreferenceTopic(pref, "IA creativa", source, "Crear materiales de estudio con IA", "Genera tarjetas, quiz, historias o ejemplos adaptados al nivel.", "Hace el estudio mas activo.", ["Crear quiz", "Crear resumen", "Revisar dificultad"], ["Flashcards", "Preguntas de opcion multiple", "Resumen guiado", "Rubricas", "Retroalimentacion"], ["Crear quiz de 10 preguntas", "Pedir pistas graduadas", "Autoevaluarse"], "Evidencia: kit de estudio generado y corregido."),
+    makePreferenceTopic(pref, "Proyecto IA", source, "Mini agente tutor del avatar", "Diseña el comportamiento de un tutor IA seguro para el avatar.", "Integra tecnologia, comunicacion y etica.", ["Definir reglas", "Diseñar flujo", "Probar utilidad"], ["Personalidad del tutor", "Reglas de seguridad", "Preguntas frecuentes", "Ruta de ayuda", "Evaluacion de respuesta"], ["Diseñar guion de tutor", "Probar 3 casos", "Mejorar reglas"], "Evidencia: ficha del tutor IA.")
+  ];
+}
+
+function roboticsModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Robotica", source, "Robotica desde cero: sensores, ordenes y misiones", `Explora robots como sistemas que reciben informacion, deciden y actuan con enfoque ${level.depth}.`, "Desarrolla pensamiento computacional y resolucion de problemas.", ["Comprender entrada-proceso-salida", "Diseñar instrucciones", "Probar mejoras"], ["Sensores", "Actuadores", "Algoritmos", "Secuencias", "Depuracion"], ["Diseñar robot en papel", "Crear flujo de decisiones", "Probar ruta en cuadricula"], "Evidencia: diagrama de robot y algoritmo."),
+    makePreferenceTopic(pref, "Programacion", source, "Algoritmos para controlar un robot", "Convierte misiones en pasos claros, condiciones y repeticiones.", "Mejora logica y precision.", ["Crear secuencias", "Usar condiciones", "Corregir errores"], ["Instrucciones", "Bucles", "Condicionales", "Eventos", "Pruebas"], ["Programar ruta sin codigo", "Detectar error", "Optimizar pasos"], "Evidencia: pseudocodigo o bloques."),
+    makePreferenceTopic(pref, "Ingenieria", source, "Diseño de prototipo robotico", "Diseña una solucion robotica para escuela, casa o comunidad.", "Conecta creatividad con utilidad.", ["Detectar problema", "Diseñar prototipo", "Evaluar impacto"], ["Problema", "Usuario", "Materiales", "Funcion", "Mejora"], ["Boceto del prototipo", "Lista de piezas", "Pitch de solucion"], "Evidencia: ficha de prototipo.")
+  ];
+}
+
+function technologyModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Tecnologia", source, `Proyecto digital basado en ${pref}`, "Aprende a convertir una idea tecnologica en flujo, interfaz o prototipo.", "Desarrolla habilidades digitales utiles.", ["Diseñar flujo", "Prototipar", "Probar con usuario"], ["Problema", "Pantallas o pasos", "Datos necesarios", "Seguridad", "Mejora"], ["Wireframe", "Prueba con familiar", "Iteracion"], "Evidencia: prototipo y explicacion."),
+    makePreferenceTopic(pref, "Pensamiento computacional", source, "Resolver problemas como programador", "Divide problemas en pasos, patrones y reglas.", "Mejora logica transferible.", ["Descomponer", "Crear algoritmo", "Evaluar resultado"], ["Descomposicion", "Patrones", "Abstraccion", "Algoritmos", "Depuracion"], ["Mapa de problema", "Algoritmo de solucion", "Prueba"], "Evidencia: algoritmo probado."),
+    makePreferenceTopic(pref, "Seguridad digital", source, "Tecnologia segura y responsable", "Aprende privacidad, contraseñas, huella digital y uso responsable.", "Protege al estudiante.", ["Cuidar datos", "Identificar riesgos", "Tomar decisiones"], ["Privacidad", "Contraseñas", "Phishing", "Tiempo de pantalla", "Respeto online"], ["Checklist de seguridad", "Caso de riesgo", "Regla familiar"], "Evidencia: checklist.")
+  ];
+}
+
+function creativityModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Creatividad", source, `Proyecto creativo de ${pref}`, "Convierte la preferencia creativa en producto visual, narrativo o multimedia.", "Desarrolla expresion y comunicacion.", ["Idear", "Crear", "Mejorar"], ["Idea central", "Audiencia", "Estilo", "Boceto", "Version final"], ["Moodboard", "Boceto", "Presentacion"], "Evidencia: pieza creativa final."),
+    makePreferenceTopic(pref, "Narrativa", source, "Storytelling para explicar ideas", "Usa historia, personajes, conflicto y solucion para comunicar.", "Mejora escritura y presentacion.", ["Crear estructura", "Usar detalles", "Revisar claridad"], ["Inicio", "Desarrollo", "Cierre", "Personaje", "Mensaje"], ["Guion breve", "Storyboard", "Lectura en voz alta"], "Evidencia: guion/storyboard."),
+    makePreferenceTopic(pref, "Portafolio", source, "Portafolio visual de progreso", "Documenta avances y decisiones creativas.", "Hace visible el aprendizaje.", ["Registrar proceso", "Elegir evidencias", "Reflexionar"], ["Antes/despues", "Decisiones", "Errores", "Mejoras", "Presentacion"], ["Bitacora", "Galeria", "Autoevaluacion"], "Evidencia: portafolio.")
+  ];
+}
+
+function scienceInterestModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Investigacion", source, `Exploracion cientifica de ${pref}`, "Transforma la curiosidad en preguntas, hipotesis y observaciones seguras.", "Desarrolla pensamiento cientifico.", ["Preguntar", "Observar", "Concluir"], ["Pregunta investigable", "Hipotesis", "Variables", "Registro", "Conclusion"], ["Bitacora", "Experimento seguro", "Infografia"], "Evidencia: reporte cientifico."),
+    makePreferenceTopic(pref, "Modelo", source, "Modelo visual para comprender fenomenos", "Representa el tema con maqueta, diagrama o simulacion.", "Mejora comprension conceptual.", ["Modelar", "Explicar", "Relacionar"], ["Partes", "Relaciones", "Causa y efecto", "Escala", "Limitaciones"], ["Modelo o dibujo", "Explicacion oral", "Revision"], "Evidencia: modelo explicado."),
+    makePreferenceTopic(pref, "Impacto", source, "Ciencia, ambiente y comunidad", "Relaciona la preferencia con problemas reales y acciones posibles.", "Conecta aprendizaje y responsabilidad.", ["Analizar impacto", "Proponer accion", "Evaluar consecuencias"], ["Contexto local", "Riesgos", "Beneficios", "Acciones", "Medicion"], ["Caso local", "Propuesta", "Indicador"], "Evidencia: propuesta.")
+  ];
+}
+
+function mathInterestModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Razonamiento", source, `Retos matematicos de ${pref}`, "Usa la preferencia para resolver problemas numericos y logicos adaptados.", "Fortalece pensamiento abstracto.", ["Resolver", "Explicar", "Generalizar"], [level.math, "Patrones", "Estrategias", "Errores comunes", "Verificacion"], ["Reto semanal", "Explicacion paso a paso", "Correccion de error"], "Evidencia: problemario personalizado."),
+    makePreferenceTopic(pref, "Datos", source, "Datos, graficas y predicciones", "Convierte la preferencia en datos para analizar.", "Mejora interpretacion.", ["Recolectar datos", "Graficar", "Concluir"], ["Tabla", "Grafica", "Promedio o tendencia", "Comparacion", "Decision"], ["Encuesta", "Grafica", "Conclusion"], "Evidencia: reporte de datos."),
+    makePreferenceTopic(pref, "Logica", source, "Logica y estrategia", "Entrena decisiones con reglas, condiciones y consecuencias.", "Mejora planeacion.", ["Identificar reglas", "Comparar estrategias", "Optimizar"], ["Si-entonces", "Casos", "Arbol de decision", "Probabilidad simple", "Estrategia"], ["Juego de logica", "Arbol de decision", "Reflexion"], "Evidencia: estrategia explicada.")
+  ];
+}
+
+function wellbeingModules(pref, level, countryName) {
+  const source = `Preferencia del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Metas", source, `Plan personal de ${pref}`, "Convierte la preferencia en habitos, metas y seguimiento.", "Mejora constancia.", ["Definir meta", "Medir avance", "Ajustar"], ["Meta SMART", "Rutina", "Indicador", "Obstaculos", "Recompensa sana"], ["Plan semanal", "Registro", "Reflexion"], "Evidencia: tablero de progreso."),
+    makePreferenceTopic(pref, "Autogestion", source, "Organizacion, energia y foco", "Aprende a estudiar sin saturarse.", "Sostiene aprendizaje.", ["Planear", "Priorizar", "Descansar"], ["Bloques de estudio", "Pausas", "Ambiente", "Motivacion", "Autoevaluacion"], ["Agenda", "Tecnica de enfoque", "Revision"], "Evidencia: rutina.")
+  ];
+}
+
+function customInterestModules(pref, level, countryName) {
+  const source = `Preferencia personalizada del usuario: ${pref}`;
+  return [
+    makePreferenceTopic(pref, "Exploracion", source, `Fundamentos de ${pref}`, `Construye una base clara sobre "${pref}" con dificultad ${level.depth}.`, "Convierte un gusto personal en ruta de aprendizaje real.", ["Comprender conceptos", "Crear vocabulario", "Explicar utilidad"], [`Que es ${pref}`, "Conceptos clave", "Vocabulario esencial", "Ejemplos seguros", "Errores o mitos comunes"], ["Mapa conceptual", "Glosario", "Explicacion breve"], "Evidencia: mapa y glosario."),
+    makePreferenceTopic(pref, "Aplicacion", source, `${pref} aplicado a un proyecto realista`, "Lleva el tema a una actividad concreta y alcanzable.", "Hace el aprendizaje accionable.", ["Aplicar", "Crear", "Probar"], ["Problema", "Idea", "Materiales o recursos", "Proceso", "Resultado"], ["Mini proyecto", "Bitacora", "Mejora"], "Evidencia: proyecto terminado."),
+    makePreferenceTopic(pref, "Investigacion", source, `Investigar ${pref} con fuentes confiables`, "Aprende a buscar informacion y distinguir calidad.", "Evita temarios superficiales.", ["Buscar", "Comparar", "Sintetizar"], ["Fuentes confiables", "Notas", "Comparacion", "Resumen", "Preguntas nuevas"], ["Ficha de investigacion", "Resumen", "Preguntas"], "Evidencia: ficha con fuentes."),
+    makePreferenceTopic(pref, "Comunicacion", source, `Presentar ${pref} como experto principiante`, "Organiza lo aprendido para explicarlo a otra persona.", "Refuerza comprension.", ["Organizar", "Explicar", "Responder"], ["Estructura", "Ejemplos", "Visuales", "Preguntas", "Retroalimentacion"], ["Presentacion", "Infografia", "Preguntas"], "Evidencia: exposicion.")
+  ];
+}
+
+function buildCapstoneModule(pref, band, grade, age, countryName, number) {
+  const level = levelDescriptor(band, grade, age);
+  return makePreferenceTopic(pref, "Proyecto integrador", `Preferencia del usuario: ${pref}`, `Proyecto ${number}: ${pref} en accion`, `Integra "${pref}" en una mision de aprendizaje adecuada para ${level.gradeText}.`, "Cierra la ruta con evidencia visible.", ["Integrar", "Crear", "Presentar"], ["Objetivo", "Plan", "Producto", "Revision", "Presentacion"], ["Crear producto final", "Explicar proceso", "Autoevaluar"], "Evidencia: producto final y reflexion.");
+}
+
+function makePreferenceTopic(preference, area, source, title, description, benefit, objectives, subtopics, practice, assessment) {
+  return { preference, area, source, title, description, benefit, objectives, subtopics, practice, assessment };
 }
 
 function getCurriculumBlueprint(band, grade, countryName, prefs) {
@@ -874,14 +1032,14 @@ function pickFocusSet(band, prefs) {
   return common;
 }
 
-function adaptSubtopic(subtopic, band, pref, country, levelName, age) {
-  const levelHint = {
-    primaria: "con ejemplos visuales y retos cortos",
-    secundaria: "con ejercicios graduados y colaborativos",
-    preparatoria: "con analisis aplicado y evidencia",
-    universidad: "con criterios profesionales y entregables"
-  }[band];
-  return `${subtopic.replace("{country}", country).replace("{pref}", pref)}, conectado con "${pref}", ${levelHint}, para ${levelName} y ${age} años`;
+function simplifyPlanLine(text) {
+  const clean = String(text)
+    .replace(/\s+/g, " ")
+    .replace(/\s*,\s*$/, "")
+    .trim();
+  if (!clean) return "";
+  const sentence = clean.length > 95 ? `${clean.slice(0, 92).trim()}...` : clean;
+  return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
 }
 
 function renderStudyPlan() {
@@ -901,9 +1059,6 @@ function renderStudyPlan() {
         </div>
         <h3>${escapeHtml(topic.title)}</h3>
         <p>${escapeHtml(topic.description)}</p>
-        <div class="profile-proof">
-          ${topic.profileProof.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
-        </div>
         <h4>Subtemas</h4>
         <ul>${topic.subtopics.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
         <h4>Practicas guiadas</h4>
